@@ -1,4 +1,4 @@
-package org.example.main;
+package dev.visionhikooo.main;
 
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
 import net.dv8tion.jda.api.sharding.ShardManager;

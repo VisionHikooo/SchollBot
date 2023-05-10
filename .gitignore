@@ -12,4 +12,4 @@ main/java/org/example/main/Tokens.java
 *.iws
 *.iml
 *.ipr
-/src/main/java/org/example/main/Tokens.java
+/src/main/java/dev/visionhikooo/main/Tokens.java
