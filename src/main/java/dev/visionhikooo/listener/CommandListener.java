@@ -20,7 +20,9 @@ public class CommandListener extends Listener {
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
-        String message = event.getMessage().getContentDisplay().toLowerCase();
+        if (event.getAuthor().isBot())
+            return;
+        String message = event.getMessage().getContentDisplay();
         SchollBot.sendConsoleMessage("Eine neue Nachricht wurde erkannt!", Debug.HIGH);
         if (message.equalsIgnoreCase("!Bot") || message.equalsIgnoreCase("!help"))
             manager.sendHelp(event.getGuildChannel());
@@ -30,8 +32,7 @@ public class CommandListener extends Listener {
 
         SchollBot.sendConsoleMessage("Ein neuer Befehl wurde erkannt!", Debug.NORMAL);
         String[] commandParts = message.substring(bot ? 5 : 6).split(" ");
-        String label = commandParts[0];
-
+        String label = commandParts[0].toLowerCase();
         if (bot) {
             String[] args;
             if (commandParts.length > 1)

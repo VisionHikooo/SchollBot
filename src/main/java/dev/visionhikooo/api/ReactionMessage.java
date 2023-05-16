@@ -1,5 +1,6 @@
 package dev.visionhikooo.api;
 
+import dev.visionhikooo.main.SchollBot;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.unions.GuildMessageChannelUnion;
@@ -19,5 +20,6 @@ public class ReactionMessage {
 
     public void onReact(String codepoint, Member member, GuildMessageChannelUnion channel, boolean onOff) {
         reactable.onReact(codepoint, member, channel, onOff);
+        SchollBot.sendConsoleMessage("onReact!", Debug.HIGH);
     }
 }

@@ -1,5 +1,6 @@
 package dev.visionhikooo.commands.commandSystem;
 
+import dev.visionhikooo.main.SchollBot;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.unions.GuildMessageChannelUnion;
 

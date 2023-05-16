@@ -25,11 +25,19 @@ public class GuildReactionManager extends Listener {
         reactionMessages.put(message.getMessageID(), message);
     }
 
+    public void changeID(long oldID, long newID) {
+        if (!reactionMessages.containsKey(oldID)) return;
+        ReactionMessage reaction = reactionMessages.get(oldID);
+        reactionMessages.remove(oldID);
+        reactionMessages.put(newID, reaction);
+    }
+
     /*
     * Wenn eine Reaction einer Nachricht hinzugefügt wird
     * */
     @Override
     public void onMessageReactionAdd(MessageReactionAddEvent event) {
+        if (event.getUser().isBot()) return;
         SchollBot.sendConsoleMessage("Es wurde auf eine Nachricht reagiert", Debug.HIGH);
         System.out.println(Arrays.asList(reactionMessages));
         if (reactionMessages.containsKey(event.getMessageIdLong()))
@@ -41,6 +49,7 @@ public class GuildReactionManager extends Listener {
     * */
     @Override
     public void onMessageReactionRemove(MessageReactionRemoveEvent event) {
+        if (event.getUser().isBot()) return;
         if (reactionMessages.containsKey(event.getMessageIdLong()))
             reactionMessages.get(event.getMessageIdLong()).onReact(event.getEmoji().asUnicode().getAsCodepoints(), event.getMember(), event.getGuildChannel(), false);
     }

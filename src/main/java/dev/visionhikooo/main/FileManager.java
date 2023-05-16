@@ -1,13 +1,49 @@
 package dev.visionhikooo.main;
 
+import com.iwebpp.crypto.TweetNaclFast;
+
 import java.io.*;
+import java.util.HashMap;
 
 public class FileManager {
 
-    private String defaultURL = System.getProperty("user.dir") + File.separator + "Data";;
+    private final SchollBot bot;
 
-    public FileManager() {
+    public void safeIDs() {
+        writeObjectToFile("ids.scholl", specialIDs);
+    }
+
+    public enum Options {
+        RULES,
+        CLASSES,
+        TEMP_CAT,
+        BOT,
+        DEBUG,
+        TICKET_CAT
+    }
+
+    private String defaultURL = System.getProperty("user.dir") + File.separator + "Data";
+    private HashMap<Options, Long> specialIDs;
+
+    public FileManager(SchollBot bot) {
+        this.bot = bot;
+        specialIDs = (HashMap<Options, Long>) getObjectFromFile("ids.scholl");
+        if (specialIDs == null)
+            specialIDs = new HashMap<>();
         initFolderStructure();
+    }
+
+    public long getID(Options option) {
+        return specialIDs.containsKey(option) ? specialIDs.get(option) : 0L;
+    }
+
+    public boolean hasID(Options options) {
+        return getID(options)!=0L;
+    }
+
+    public void setID(Options options, Long id) {
+        bot.getGuildReactionManager().changeID(getID(options), id);
+        specialIDs.put(options, id);
     }
 
     public void initFolderStructure() {
@@ -15,20 +51,6 @@ public class FileManager {
         if (!folder.exists()) {
             folder.mkdirs();
             folder.mkdir();
-        }
-    }
-
-    public File getFile(String path, String fileName) {
-        try {
-            new File(defaultURL + (path.isEmpty()?"":File.separator) + path).mkdirs();
-            File file = new File(defaultURL + (path.isEmpty()?"":File.separator) + path + File.separator + fileName);
-
-            if (!file.exists())
-                file.createNewFile();
-
-            return file;
-        } catch (IOException e) {
-            throw new RuntimeException(e);
         }
     }
 
@@ -48,8 +70,17 @@ public class FileManager {
     }
 
     public void writeObjectToFile(String path, String fileName, Object obj) {
-        File file = getFile(path, fileName);
-        writeObjectToFile(file, obj);
+        try {
+            new File(defaultURL + (path.isEmpty()?"":File.separator) + path).mkdirs();
+            File file = new File(defaultURL + (path.isEmpty()?"":File.separator) + path + File.separator + fileName);
+
+            if (!file.exists())
+                file.createNewFile();
+
+            writeObjectToFile(file, obj);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void writeObjectToFile(String fileName, Object obj) {
@@ -67,8 +98,13 @@ public class FileManager {
     }
 
     public Object getObjectFromFile(String path, String fileName) {
-        File file = getFile(path, fileName);
-        return getObjectFromFile(fileName);
+        new File(defaultURL + (path.isEmpty()?"":File.separator) + path).mkdirs();
+        File file = new File(defaultURL + (path.isEmpty()?"":File.separator) + path + File.separator + fileName);
+
+        if (!file.exists())
+            return null;
+
+        return getObjectFromFile(file);
     }
 
     public Object getObjectFromFile(String fileName) {

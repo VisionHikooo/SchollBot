@@ -4,8 +4,10 @@ import dev.visionhikooo.api.Debug;
 import dev.visionhikooo.api.Reactable;
 import dev.visionhikooo.api.ReactionMessage;
 import dev.visionhikooo.commands.HiCMD;
+import dev.visionhikooo.commands.SetupCommand;
 import dev.visionhikooo.commands.TempChannelCMD;
 import dev.visionhikooo.commands.commandSystem.CommandManager;
+import dev.visionhikooo.listener.ButtonReactionListener;
 import dev.visionhikooo.listener.CommandListener;
 import dev.visionhikooo.listener.GuildReactionManager;
 import dev.visionhikooo.listener.TempChannelManager;
@@ -60,16 +62,16 @@ public class SchollBot {
         builder.enableIntents(GatewayIntent.GUILD_MESSAGES);
         builder.enableIntents(GatewayIntent.MESSAGE_CONTENT);
         builder.enableIntents(GatewayIntent.GUILD_MEMBERS);
-        fileManager = new FileManager();
+        fileManager = new FileManager(this);
         commandManager = new CommandManager();
         tempChannelManager = new TempChannelManager(this);
         guildReactionManager = new GuildReactionManager(this);
 
-        builder.addEventListeners(new CommandListener(this), tempChannelManager, guildReactionManager);
+        builder.addEventListeners(new CommandListener(this), tempChannelManager, guildReactionManager, new ButtonReactionListener(this));
         registerCommands();
         registerMessages();
-
         shardMan = builder.build();
+        shutdown();
     }
 
     public FileManager getFileManager() {
@@ -85,13 +87,14 @@ public class SchollBot {
     }
 
     public void registerCommands() {
-        commandManager.registerCommand("Hi", new HiCMD());
+        commandManager.registerCommand("hi", new HiCMD());
         commandManager.registerCommand("tmp", new TempChannelCMD(this));
+        commandManager.registerCommand("setup", new SetupCommand(this));
     }
 
     public void registerMessages() {
         //Regelnachricht
-        guildReactionManager.registerReactionMessage(new ReactionMessage(1106278443513032887L, new Reactable() {
+        guildReactionManager.registerReactionMessage(new ReactionMessage(fileManager.getID(FileManager.Options.RULES), new Reactable() {
             @Override
             public void onReact(String codePoint, Member member, GuildMessageChannelUnion channel, boolean onOff) {
 
@@ -110,7 +113,8 @@ public class SchollBot {
             }
         }));
 
-        guildReactionManager.registerReactionMessage(new ReactionMessage(12L, new Reactable() {
+
+        guildReactionManager.registerReactionMessage(new ReactionMessage(fileManager.getID(FileManager.Options.CLASSES), new Reactable() {
             @Override
             public void onReact(String codePoint, Member member, GuildMessageChannelUnion channel, boolean onOff) {
 
@@ -123,7 +127,7 @@ public class SchollBot {
             String line = "";
             BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
             try {
-                while ((line = reader.readLine().toLowerCase()) != null) {
+                while ((line = reader.readLine()) != null) {
                     if (line.equalsIgnoreCase("exit")) {
                         if (shardMan != null) {
                             shardMan.setStatus(OnlineStatus.OFFLINE);
@@ -131,6 +135,7 @@ public class SchollBot {
                             System.out.println("Bot offline.");
                         }
                         tempChannelManager.onShutdown();
+                        fileManager.safeIDs();
                         reader.close();
                     } else if(line.equalsIgnoreCase("reload")) {
                         reload();
@@ -169,6 +174,6 @@ public class SchollBot {
     }
 
     private void reload() {
-        // Alles reinschreiben, was beim Reload aktualisiert werden soll.
+        fileManager.safeIDs();
     }
 }
