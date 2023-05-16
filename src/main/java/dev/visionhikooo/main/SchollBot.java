@@ -1,6 +1,8 @@
 package dev.visionhikooo.main;
 
 import dev.visionhikooo.api.Debug;
+import dev.visionhikooo.api.Reactable;
+import dev.visionhikooo.api.ReactionMessage;
 import dev.visionhikooo.commands.HiCMD;
 import dev.visionhikooo.commands.TempChannelCMD;
 import dev.visionhikooo.commands.commandSystem.CommandManager;
@@ -9,7 +11,10 @@ import dev.visionhikooo.listener.GuildReactionManager;
 import dev.visionhikooo.listener.TempChannelManager;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.channel.unions.GuildMessageChannelUnion;
+import net.dv8tion.jda.api.exceptions.HierarchyException;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
 import net.dv8tion.jda.api.sharding.ShardManager;
@@ -25,14 +30,16 @@ public class SchollBot {
     private CommandManager commandManager;
     private TempChannelManager tempChannelManager;
     private GuildReactionManager guildReactionManager;
-
-    public GuildReactionManager getGuildReactionManager() {
-        return guildReactionManager;
-    }
+    private FileManager fileManager;
 
     private static Debug debug = Debug.HIGH;
     private static boolean sendDebugToChannel = false;
     private static GuildMessageChannelUnion botChannel;
+
+
+    public GuildReactionManager getGuildReactionManager() {
+        return guildReactionManager;
+    }
 
     public static Debug getDebug() {
         return debug;
@@ -53,14 +60,20 @@ public class SchollBot {
         builder.enableIntents(GatewayIntent.GUILD_MESSAGES);
         builder.enableIntents(GatewayIntent.MESSAGE_CONTENT);
         builder.enableIntents(GatewayIntent.GUILD_MEMBERS);
+        fileManager = new FileManager();
         commandManager = new CommandManager();
-        tempChannelManager = new TempChannelManager();
-        guildReactionManager = new GuildReactionManager();
+        tempChannelManager = new TempChannelManager(this);
+        guildReactionManager = new GuildReactionManager(this);
 
         builder.addEventListeners(new CommandListener(this), tempChannelManager, guildReactionManager);
         registerCommands();
+        registerMessages();
 
         shardMan = builder.build();
+    }
+
+    public FileManager getFileManager() {
+        return fileManager;
     }
 
     public CommandManager getCommandManager() {
@@ -74,6 +87,35 @@ public class SchollBot {
     public void registerCommands() {
         commandManager.registerCommand("Hi", new HiCMD());
         commandManager.registerCommand("tmp", new TempChannelCMD(this));
+    }
+
+    public void registerMessages() {
+        //Regelnachricht
+        guildReactionManager.registerReactionMessage(new ReactionMessage(1106278443513032887L, new Reactable() {
+            @Override
+            public void onReact(String codePoint, Member member, GuildMessageChannelUnion channel, boolean onOff) {
+
+                if (codePoint.equals("U+2705")) {
+                    try {
+                        sendConsoleMessage("Es wurde mit dem Haken reagiert!", Debug.HIGH);
+                        Role role = member.getGuild().getRolesByName("Azubi", true).get(0);
+                        if (onOff)
+                            member.getGuild().addRoleToMember(member, role).queue();
+                        else
+                            member.getGuild().removeRoleFromMember(member, role).queue();
+                    } catch (HierarchyException e) {
+                        sendConsoleMessage("HierarchieException");
+                    }
+                }
+            }
+        }));
+
+        guildReactionManager.registerReactionMessage(new ReactionMessage(12L, new Reactable() {
+            @Override
+            public void onReact(String codePoint, Member member, GuildMessageChannelUnion channel, boolean onOff) {
+
+            }
+        }));
     }
 
     public void shutdown() {

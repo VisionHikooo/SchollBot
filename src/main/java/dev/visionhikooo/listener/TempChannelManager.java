@@ -1,5 +1,6 @@
 package dev.visionhikooo.listener;
 
+import dev.visionhikooo.main.SchollBot;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.concrete.Category;
@@ -11,12 +12,13 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 import java.util.ArrayList;
 
-public class TempChannelManager extends ListenerAdapter {
+public class TempChannelManager extends Listener {
 
     private ArrayList<Long> tempChannels;
     private Guild guild;
 
-    public TempChannelManager() {
+    public TempChannelManager(SchollBot bot) {
+        super(bot);
         tempChannels = new ArrayList<>();
     }
 

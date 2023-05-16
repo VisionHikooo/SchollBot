@@ -5,15 +5,19 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.unions.GuildMessageChannelUnion;
 
 public class ReactionMessage {
-    private Message message;
+    private long messageID;
     private Reactable reactable;
 
-    public ReactionMessage(Message message,Reactable reactable) {
+    public ReactionMessage(long messageID,Reactable reactable) {
         this.reactable = reactable;
-        this.message = message;
+        this.messageID = messageID;
     }
 
-    public void onReact(String codepoint, Member member, GuildMessageChannelUnion channel) {
-        reactable.onReact(codepoint, member, channel);
+    public long getMessageID() {
+        return messageID;
+    }
+
+    public void onReact(String codepoint, Member member, GuildMessageChannelUnion channel, boolean onOff) {
+        reactable.onReact(codepoint, member, channel, onOff);
     }
 }
