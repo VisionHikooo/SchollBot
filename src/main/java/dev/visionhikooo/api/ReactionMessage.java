@@ -18,8 +18,8 @@ public class ReactionMessage {
         return messageID;
     }
 
-    public void onReact(String codepoint, Member member, GuildMessageChannelUnion channel, boolean onOff) {
-        reactable.onReact(codepoint, member, channel, onOff);
+    public void onReact(String codepoint, Member member, GuildMessageChannelUnion channel) {
+        reactable.onReact(codepoint, member, channel);
         SchollBot.sendConsoleMessage("onReact!", Debug.HIGH);
     }
 }

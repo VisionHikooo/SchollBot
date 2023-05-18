@@ -21,6 +21,7 @@ public class ButtonReactionListener extends Listener {
 
     @Override
     public void onButtonInteraction(ButtonInteractionEvent event) {
+        event.deferEdit().queue();
         long channelID =getSchollBot().getFileManager().getID(FileManager.Options.TICKET_CAT);
         Category cat = event.getGuild().getCategoryById(channelID);
         if (channelID == 1)

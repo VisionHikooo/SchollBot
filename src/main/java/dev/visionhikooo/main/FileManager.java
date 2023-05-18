@@ -27,10 +27,14 @@ public class FileManager {
 
     public FileManager(SchollBot bot) {
         this.bot = bot;
-        specialIDs = (HashMap<Options, Long>) getObjectFromFile("ids.scholl");
+        loadIDs();
         if (specialIDs == null)
             specialIDs = new HashMap<>();
         initFolderStructure();
+    }
+
+    public void loadIDs() {
+        specialIDs = (HashMap<Options, Long>) getObjectFromFile("ids.scholl");
     }
 
     public long getID(Options option) {

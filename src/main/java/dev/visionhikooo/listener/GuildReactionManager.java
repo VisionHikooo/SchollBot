@@ -3,6 +3,7 @@ package dev.visionhikooo.listener;
 import dev.visionhikooo.api.Debug;
 import dev.visionhikooo.api.ReactionMessage;
 import dev.visionhikooo.main.SchollBot;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -37,20 +38,11 @@ public class GuildReactionManager extends Listener {
     * */
     @Override
     public void onMessageReactionAdd(MessageReactionAddEvent event) {
-        if (event.getUser().isBot()) return;
-        SchollBot.sendConsoleMessage("Es wurde auf eine Nachricht reagiert", Debug.HIGH);
-        System.out.println(Arrays.asList(reactionMessages));
+        User user = event.retrieveUser().complete();
+        if (user.isBot()) return;
+        SchollBot.sendConsoleMessage("Es wurde auf eine Nachricht mit " + event.getReaction().getEmoji().asUnicode() +  " reagiert", Debug.HIGH);
         if (reactionMessages.containsKey(event.getMessageIdLong()))
-            reactionMessages.get(event.getMessageIdLong()).onReact(event.getEmoji().asUnicode().getAsCodepoints(), event.getMember(), event.getGuildChannel(), true);
-    }
-
-    /*
-    * Wenn eine Reaction einer Nachricht entfernt wird
-    * */
-    @Override
-    public void onMessageReactionRemove(MessageReactionRemoveEvent event) {
-        if (event.getUser().isBot()) return;
-        if (reactionMessages.containsKey(event.getMessageIdLong()))
-            reactionMessages.get(event.getMessageIdLong()).onReact(event.getEmoji().asUnicode().getAsCodepoints(), event.getMember(), event.getGuildChannel(), false);
+            reactionMessages.get(event.getMessageIdLong()).onReact(event.getEmoji().asUnicode().getAsCodepoints(), event.retrieveMember().complete(), event.getGuildChannel());
+        event.getReaction().removeReaction(user).queue();
     }
 }
