@@ -89,7 +89,10 @@ public class SetupCommand implements Command {
             buttons.add(Button.of(ButtonStyle.SUCCESS, "TICKET", Emoji.fromUnicode("U+1F39F")));
             buttons.add(Button.of(ButtonStyle.DANGER, "REPORT", Emoji.fromUnicode("U+1F46E")));
             channel.sendMessageEmbeds(new EmbedBuilder().setTitle("Ticket Anfordern")
-                    .setDescription("Klickt einfach auf den unteren Button, um eine Anfrage zu schicken. Keine Scheu!")
+                    .setDescription("Klickt einfach auf den unteren Button, um eine Anfrage zu schicken.\n\n" +
+                            "Der grüne Button erstellt eine Support-Anfrage. Hier kannst du um Hilfe bei der Schule bitten\n\n" +
+                            "Der rote Button erstellt ein Report-Ticket. Hier kannst du Bugs und Vergehen melden und ein Teammitglied wird sich schnellstmöglich darum kümmern.\n\n" +
+                            "Keine Scheu!")
                     .build()).addActionRow(buttons).queue();
             long id = channel.asTextChannel().getParentCategory().getIdLong();
             bot.getFileManager().setID(FileManager.Options.TICKET_CAT, id);

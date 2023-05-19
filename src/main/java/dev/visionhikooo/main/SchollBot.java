@@ -62,6 +62,10 @@ public class SchollBot {
         new SchollBot();
     }
 
+    private long adminID = 1105213719555878993L;
+    private long modID = 1105255834625249420L;
+
+
     public SchollBot() {
         DefaultShardManagerBuilder builder = DefaultShardManagerBuilder.createDefault(Tokens.HAUPT_TOKEN);
         builder.setStatus(OnlineStatus.ONLINE);
@@ -79,6 +83,16 @@ public class SchollBot {
         registerMessages();
         shardMan = builder.build();
         shutdown();
+
+
+    }
+
+    public long getAdminID() {
+        return adminID;
+    }
+
+    public long getModID() {
+        return modID;
     }
 
     public FileManager getFileManager() {
