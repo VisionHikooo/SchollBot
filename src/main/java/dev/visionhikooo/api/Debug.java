@@ -1,5 +1,6 @@
 package dev.visionhikooo.api;
 
+import dev.visionhikooo.filesystem.OptionManager;
 import dev.visionhikooo.main.SchollBot;
 
 public enum Debug {
@@ -19,6 +20,6 @@ public enum Debug {
     }
 
     public boolean isAllowed() {
-        return value <= SchollBot.getDebug().getValue();
+        return value <= OptionManager.getDebug().getValue();
     }
 }

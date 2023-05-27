@@ -1,14 +1,11 @@
 package dev.visionhikooo.commands;
 
 import dev.visionhikooo.api.Debug;
-import dev.visionhikooo.api.SchoolClass;
 import dev.visionhikooo.commands.commandSystem.Command;
+import dev.visionhikooo.filesystem.OptionManager;
 import dev.visionhikooo.listener.TempChannelManager;
-import dev.visionhikooo.main.FileManager;
 import dev.visionhikooo.main.SchollBot;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.channel.concrete.Category;
-import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import net.dv8tion.jda.api.entities.channel.unions.GuildMessageChannelUnion;
 
 public class TempChannelCMD implements Command {
@@ -28,7 +25,7 @@ public class TempChannelCMD implements Command {
             return false;
         }
 
-        if (!bot.getFileManager().hasID(FileManager.Options.TEMP_CAT)) {
+        if (!bot.getOptionManager().hasID(OptionManager.Options.TEMP_CAT_ID)) {
             channel.sendMessage("Es ist aktuell keine Kategorie für temporäre Channel vorhanden. Bitte wende dich an einen Admin!").queue();
             SchollBot.sendConsoleMessage("Es wurde keine Kategorie für temporäre Channel erstellt!", Debug.LOW);
             return false;

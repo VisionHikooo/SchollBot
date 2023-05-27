@@ -2,7 +2,7 @@ package dev.visionhikooo.commands;
 
 import dev.visionhikooo.api.SchoolClass;
 import dev.visionhikooo.commands.commandSystem.Command;
-import dev.visionhikooo.main.FileManager;
+import dev.visionhikooo.filesystem.OptionManager;
 import dev.visionhikooo.main.SchollBot;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
@@ -12,7 +12,6 @@ import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 
-import java.io.File;
 import java.util.ArrayList;
 
 public class SetupCommand implements Command {
@@ -63,7 +62,7 @@ public class SetupCommand implements Command {
                         "\n" +
                         "**§8** Server Admins, Moderatoren oder anderweitig durch den Admin Befugte haben volles Weisungsrecht. Das Verweigern einer bestimmten Anweisung wird bestraft werden (bspw. durch einen Kick bis hin zum Bann). Die Gewichtung der Bestrafung unterliegt den Teammitgliedern.\n";
                 Message message = channel.sendMessage(s).complete();
-                bot.getFileManager().setID(FileManager.Options.RULES, message.getIdLong());
+                bot.getOptionManager().setID(OptionManager.Options.RULES_ID, message.getIdLong());
                 message.addReaction(Emoji.fromUnicode("U+2705")).queue();
             } catch (Exception e) {
                 channel.asTextChannel().sendMessage(e.toString()).queue();
@@ -80,7 +79,7 @@ public class SetupCommand implements Command {
                     + ":confounded:\t\tKlassenstufe 11\n\n"
                     + ":student:\t\tKlassenstufe 12\n\n";
             Message message = channel.sendMessage(s).complete();
-            bot.getFileManager().setID(FileManager.Options.CLASSES, message.getIdLong());
+            bot.getOptionManager().setID(OptionManager.Options.CLASSES_ID, message.getIdLong());
             for (SchoolClass school : SchoolClass.values()) {
                 message.addReaction(Emoji.fromUnicode(school.getEmoji())).queue();
             }
@@ -95,11 +94,11 @@ public class SetupCommand implements Command {
                             "Keine Scheu!")
                     .build()).addActionRow(buttons).queue();
             long id = channel.asTextChannel().getParentCategory().getIdLong();
-            bot.getFileManager().setID(FileManager.Options.TICKET_CAT, id);
+            bot.getOptionManager().setID(OptionManager.Options.TICKET_CAT_ID, id);
         } else if (args[0].equalsIgnoreCase("setBotChannel")) {
-            bot.getFileManager().setID(FileManager.Options.BOT, channel.getIdLong());
+            bot.getOptionManager().setID(OptionManager.Options.BOT_ID, channel.getIdLong());
         } else if (args[0].equalsIgnoreCase("setDebugChannel")) {
-            bot.getFileManager().setID(FileManager.Options.DEBUG, channel.getIdLong());
+            bot.getOptionManager().setID(OptionManager.Options.DEBUG_ID, channel.getIdLong());
         }
 
         return true;

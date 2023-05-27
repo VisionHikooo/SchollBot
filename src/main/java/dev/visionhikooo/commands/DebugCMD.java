@@ -2,6 +2,7 @@ package dev.visionhikooo.commands;
 
 import dev.visionhikooo.api.Debug;
 import dev.visionhikooo.commands.commandSystem.Command;
+import dev.visionhikooo.filesystem.OptionManager;
 import dev.visionhikooo.main.SchollBot;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
@@ -27,9 +28,9 @@ public class DebugCMD implements Command  {
                 channel.sendMessage("Der Debug wird jetzt nicht mehr in den Channel geschickt!").queue();
             } else {
                 try {
-                    Debug d = SchollBot.getDebug();
-                    SchollBot.setDebug(Debug.valueOf(args[0]));
-                    channel.sendMessage("Der Debug wurde erfolgreich von " + d + " auf " + SchollBot.getDebug() + " geändert").queue();
+                    Debug d = OptionManager.getDebug();
+                    OptionManager.setDebug(Debug.valueOf(args[0]));
+                    channel.sendMessage("Der Debug wurde erfolgreich von " + d + " auf " + OptionManager.getDebug() + " geändert").queue();
                 } catch (IllegalArgumentException e) {
                     e.printStackTrace();
                 }

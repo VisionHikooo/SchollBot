@@ -1,7 +1,8 @@
 package dev.visionhikooo.listener;
 
-import dev.visionhikooo.main.FileManager;
+import dev.visionhikooo.filesystem.OptionManager;
 import dev.visionhikooo.main.SchollBot;
+import dev.visionhikooo.surveysAndStatistics.StatistikManager;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Role;
@@ -27,18 +28,20 @@ public class ButtonReactionListener extends Listener {
     @Override
     public void onButtonInteraction(ButtonInteractionEvent event) {
         event.deferEdit().queue();
-        long channelID =getSchollBot().getFileManager().getID(FileManager.Options.TICKET_CAT);
+        long channelID =getSchollBot().getOptionManager().getID(OptionManager.Options.TICKET_CAT_ID);
         Category cat = event.getGuild().getCategoryById(channelID);
         if (channelID == 1)
             channelID = event.getChannel().asTextChannel().getParentCategoryIdLong();
 
         switch (event.getButton().getId().toUpperCase()) {
             case "TICKET":
+                getSchollBot().getStatistikManager().addStatisticValue(StatistikManager.StatisticCategory.TICKETS_PER_DAY);
                 event.getGuild().createTextChannel("Support-" + (cat.getChannels().size()), cat).complete()
                 .sendMessageEmbeds(new EmbedBuilder().setTitle("Support").setDescription("Wir werden uns schnellstmöglich um dein Problem kümmern. Sobald deine Frage geklärt wurde, klicke bitte auf den Button, um das Ticket zu schließen.")
                 .build()).addActionRow(Button.of(ButtonStyle.SUCCESS, "CLOSE-" + event.getMember().getId(), Emoji.fromUnicode("U+2705"))).queue();
                 break;
             case "REPORT":
+                getSchollBot().getStatistikManager().addStatisticValue(StatistikManager.StatisticCategory.REPORTS_PER_DAY);
                 event.getGuild().createTextChannel("Report-" + (cat.getChannels().size()), cat)
                         .addPermissionOverride(event.getGuild().getPublicRole(), null, EnumSet.of(Permission.VIEW_CHANNEL))
                         .addPermissionOverride(event.getMember(), EnumSet.of(Permission.VIEW_CHANNEL), null)

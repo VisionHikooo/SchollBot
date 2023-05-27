@@ -1,53 +1,25 @@
-package dev.visionhikooo.main;
+package dev.visionhikooo.filesystem;
 
-import com.iwebpp.crypto.TweetNaclFast;
+import dev.visionhikooo.main.SchollBot;
+import dev.visionhikooo.surveysAndStatistics.Counter;
+import dev.visionhikooo.surveysAndStatistics.StatistikManager;
 
 import java.io.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 
 public class FileManager {
 
+
     private final SchollBot bot;
 
-    public void safeIDs() {
-        writeObjectToFile("ids.scholl", specialIDs);
-    }
-
-    public enum Options {
-        RULES,
-        CLASSES,
-        TEMP_CAT,
-        BOT,
-        DEBUG,
-        TICKET_CAT
-    }
-
     private String defaultURL = System.getProperty("user.dir") + File.separator + "Data";
-    private HashMap<Options, Long> specialIDs;
 
     public FileManager(SchollBot bot) {
         this.bot = bot;
-        loadIDs();
-        if (specialIDs == null)
-            specialIDs = new HashMap<>();
         initFolderStructure();
-    }
-
-    public void loadIDs() {
-        specialIDs = (HashMap<Options, Long>) getObjectFromFile("ids.scholl");
-    }
-
-    public long getID(Options option) {
-        return specialIDs.containsKey(option) ? specialIDs.get(option) : 0L;
-    }
-
-    public boolean hasID(Options options) {
-        return getID(options)!=0L;
-    }
-
-    public void setID(Options options, Long id) {
-        bot.getGuildReactionManager().changeID(getID(options), id);
-        specialIDs.put(options, id);
     }
 
     public void initFolderStructure() {
@@ -55,6 +27,36 @@ public class FileManager {
         if (!folder.exists()) {
             folder.mkdirs();
             folder.mkdir();
+        }
+    }
+
+    public void safeStatistics(HashMap<StatistikManager.StatisticCategory, Counter> statistics) {
+        try {
+            SimpleDateFormat format = new SimpleDateFormat("E yyyy.MM.dd 'at' hh:mm:ss a zzz");
+            boolean exists = new File(defaultURL + "statistics.scholl").exists();
+            FileWriter writer = new FileWriter(defaultURL + "statistics.scholl", true);
+            String s = "";
+            if (!exists) {
+                for (StatistikManager.StatisticCategory cat : StatistikManager.StatisticCategory.values()) {
+                    s += "[" + cat.name() + "]\t";
+                }
+                s.substring(0, s.length()-2);
+                s+="\n";
+                writer.write(s);
+                writer.flush();
+            }
+
+            s = format.format(new Date()) + "\t";
+            for (StatistikManager.StatisticCategory cat : StatistikManager.StatisticCategory.values()) {
+                s += (statistics.containsKey(cat) ? statistics.get(cat).getVal() : 0) + "\t";
+            }
+            s.substring(0, s.length()-2); //Entferne das letzte Tab
+            s += "\n";
+            writer.write(s);
+            writer.flush();
+            writer.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 

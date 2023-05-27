@@ -3,6 +3,7 @@ package dev.visionhikooo.listener;
 import dev.visionhikooo.api.Debug;
 import dev.visionhikooo.commands.commandSystem.CommandManager;
 import dev.visionhikooo.main.SchollBot;
+import dev.visionhikooo.surveysAndStatistics.StatistikManager;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
@@ -28,8 +29,13 @@ public class CommandListener extends Listener {
             manager.sendHelp(event.getGuildChannel());
 
         boolean bot;
-        if (!(bot = message.startsWith("!bot ")) && !message.startsWith("!help ")) return;
+        if (!(bot = message.startsWith("!bot ")) && !message.startsWith("!help ")) {
+            // Also es ist eine normale Nachricht!
+            getSchollBot().getStatistikManager().addStatisticValue(StatistikManager.StatisticCategory.MESSAGES_PER_DAY);
+            return;
+        }
 
+        getSchollBot().getStatistikManager().addStatisticValue(StatistikManager.StatisticCategory.COMMANDS_PER_DAY);
         SchollBot.sendConsoleMessage("Ein neuer Befehl wurde erkannt!", Debug.NORMAL);
         String[] commandParts = message.substring(bot ? 5 : 6).split(" ");
         String label = commandParts[0].toLowerCase();

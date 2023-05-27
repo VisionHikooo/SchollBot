@@ -9,29 +9,28 @@ import dev.visionhikooo.commands.HiCMD;
 import dev.visionhikooo.commands.SetupCommand;
 import dev.visionhikooo.commands.TempChannelCMD;
 import dev.visionhikooo.commands.commandSystem.CommandManager;
+import dev.visionhikooo.filesystem.FileManager;
+import dev.visionhikooo.filesystem.OptionManager;
 import dev.visionhikooo.listener.ButtonReactionListener;
 import dev.visionhikooo.listener.CommandListener;
 import dev.visionhikooo.listener.GuildReactionManager;
 import dev.visionhikooo.listener.TempChannelManager;
+import dev.visionhikooo.surveysAndStatistics.StatistikManager;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.channel.unions.GuildMessageChannelUnion;
-import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.exceptions.HierarchyException;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
 import net.dv8tion.jda.api.sharding.ShardManager;
+import net.dv8tion.jda.api.utils.MemberCachePolicy;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Locale;
 import java.util.stream.Collectors;
 
 public class SchollBot {
@@ -41,21 +40,16 @@ public class SchollBot {
     private TempChannelManager tempChannelManager;
     private GuildReactionManager guildReactionManager;
     private static FileManager fileManager;
+    private static OptionManager optionManager;
 
-    private static Debug debug = Debug.HIGH;
+    private StatistikManager statistikManager;
+
+
     private static boolean sendDebugToChannel = false;
 
 
     public GuildReactionManager getGuildReactionManager() {
         return guildReactionManager;
-    }
-
-    public static Debug getDebug() {
-        return debug;
-    }
-
-    public static void setDebug(Debug debug) {
-        SchollBot.debug = debug;
     }
 
     public static void main(String[] args) {
@@ -67,13 +61,14 @@ public class SchollBot {
 
 
     public SchollBot() {
-        DefaultShardManagerBuilder builder = DefaultShardManagerBuilder.createDefault(Tokens.HAUPT_TOKEN);
+        DefaultShardManagerBuilder builder = DefaultShardManagerBuilder.createDefault(Tokens.TEST_TOKEN);
         builder.setStatus(OnlineStatus.ONLINE);
         builder.setActivity(Activity.watching("Noah zu."));
         builder.enableIntents(GatewayIntent.GUILD_MESSAGES);
         builder.enableIntents(GatewayIntent.MESSAGE_CONTENT);
         builder.enableIntents(GatewayIntent.GUILD_MEMBERS);
         fileManager = new FileManager(this);
+        optionManager = new OptionManager(this);
         commandManager = new CommandManager();
         tempChannelManager = new TempChannelManager(this);
         guildReactionManager = new GuildReactionManager(this);
@@ -82,13 +77,20 @@ public class SchollBot {
         registerCommands();
         registerMessages();
         shardMan = builder.build();
+        statistikManager = new StatistikManager(this);
         shutdown();
+    }
 
-
+    public OptionManager getOptionManager() {
+        return optionManager;
     }
 
     public long getAdminID() {
         return adminID;
+    }
+
+    public static ShardManager getShardMan() {
+        return shardMan;
     }
 
     public long getModID() {
@@ -107,6 +109,10 @@ public class SchollBot {
         return tempChannelManager;
     }
 
+    public StatistikManager getStatistikManager() {
+        return statistikManager;
+    }
+
     public void registerCommands() {
         commandManager.registerCommand("hi", new HiCMD());
         commandManager.registerCommand("tmp", new TempChannelCMD(this));
@@ -116,7 +122,7 @@ public class SchollBot {
 
     public void registerMessages() {
         //Regelnachricht
-        guildReactionManager.registerReactionMessage(new ReactionMessage(fileManager.getID(FileManager.Options.RULES), new Reactable() {
+        guildReactionManager.registerReactionMessage(new ReactionMessage(optionManager.getID(OptionManager.Options.RULES_ID), new Reactable() {
             @Override
             public void onReact(String codePoint, Member member, GuildMessageChannelUnion channel) {
 
@@ -136,7 +142,7 @@ public class SchollBot {
         }));
 
 
-        guildReactionManager.registerReactionMessage(new ReactionMessage(fileManager.getID(FileManager.Options.CLASSES), new Reactable() {
+        guildReactionManager.registerReactionMessage(new ReactionMessage(optionManager.getID(OptionManager.Options.CLASSES_ID), new Reactable() {
             @Override
             public void onReact(String codePoint, Member member, GuildMessageChannelUnion channel) {
                 for (Role role : getClassOfMember(member)) {
@@ -159,7 +165,7 @@ public class SchollBot {
         }));
     }
 
-    private List<Role> getClassOfMember(Member member) {
+    public List<Role> getClassOfMember(Member member) {
         List<Role> roles = member.getRoles().stream().filter(role -> role.getName().endsWith("Klasse")).collect(Collectors.toList());
         sendConsoleMessage("Anzahl an Passenden Roles: " + roles.size());
         return roles;
@@ -178,23 +184,25 @@ public class SchollBot {
                             System.out.println("Bot offline.");
                         }
                         tempChannelManager.onShutdown();
-                        fileManager.safeIDs();
+                        optionManager.safeIDs();
                         reader.close();
                     } else if(line.equalsIgnoreCase("reload")) {
                         reload();
                     } else if(line.startsWith("debug")) {
                         if (line.equalsIgnoreCase("debug"))
-                            System.out.println("Debug-Mode: " + debug);
+                            System.out.println("Debug-Mode: " + OptionManager.getDebug());
                         else {
                             String s = line.substring(6);
                             try {
-                                Debug d = debug;
-                                debug = Debug.valueOf(s.toUpperCase());
-                                sendConsoleMessage("Der Debug-Modus wurde von " + d + " auf " + debug + " umgestellt!", Debug.LOW);
+                                Debug d = OptionManager.getDebug();
+                                OptionManager.setDebug( Debug.valueOf(s.toUpperCase()));
+                                sendConsoleMessage("Der Debug-Modus wurde von " + d + " auf " + OptionManager.getDebug() + " umgestellt!", Debug.LOW);
                             } catch (IllegalArgumentException e) {
                                 System.out.println("Unbekannter Debug-Wert");
                             }
                         }
+                    } else if (line.equalsIgnoreCase("stat")) {
+                        statistikManager.safe();
                     } else {
                         System.out.println("Use 'exit' to shutdown or 'reload' to reload the bot.");
                     }
@@ -209,10 +217,10 @@ public class SchollBot {
         if (debug.isAllowed()) {
             String s = "[" + (debug != Debug.NONE ? debug : "Error") + "] " + message;
             System.out.println(s);
-            System.out.println(fileManager.hasID(FileManager.Options.DEBUG));
+            System.out.println(optionManager.hasID(OptionManager.Options.DEBUG_ID));
             System.out.println(sendDebugToChannel);
-            if (sendDebugToChannel && fileManager.hasID(FileManager.Options.DEBUG)) {
-                shardMan.getGuilds().get(0).getTextChannelById(fileManager.getID(FileManager.Options.DEBUG)).sendMessage(s).queue();
+            if (sendDebugToChannel && optionManager.hasID(OptionManager.Options.DEBUG_ID)) {
+                shardMan.getGuilds().get(0).getTextChannelById(optionManager.getID(OptionManager.Options.DEBUG_ID)).sendMessage(s).queue();
                 System.out.println("Kleiner Test ");
             }
         }
@@ -232,10 +240,10 @@ public class SchollBot {
 
     private void reload() {
         // Safe everything
-        fileManager.safeIDs();
+        optionManager.safeIDs();
 
 
         // load everything
-        fileManager.loadIDs();
+        optionManager.loadIDs();
     }
 }
