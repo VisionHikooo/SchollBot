@@ -217,8 +217,6 @@ public class SchollBot {
         if (debug.isAllowed()) {
             String s = "[" + (debug != Debug.NONE ? debug : "Error") + "] " + message;
             System.out.println(s);
-            System.out.println(optionManager.hasID(OptionManager.Options.DEBUG_ID));
-            System.out.println(sendDebugToChannel);
             if (sendDebugToChannel && optionManager.hasID(OptionManager.Options.DEBUG_ID)) {
                 shardMan.getGuilds().get(0).getTextChannelById(optionManager.getID(OptionManager.Options.DEBUG_ID)).sendMessage(s).queue();
                 System.out.println("Kleiner Test ");

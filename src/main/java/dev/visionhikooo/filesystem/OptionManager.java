@@ -20,7 +20,7 @@ public class OptionManager implements Safeable {
 
     private SchollBot bot;
     private HashMap<Options, Long> specialIDs;
-    private static Debug debug = Debug.HIGH;
+    private static Debug debug = Debug.NONE;
 
     public OptionManager(SchollBot bot) {
         this.bot = bot;
