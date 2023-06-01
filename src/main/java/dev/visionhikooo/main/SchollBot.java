@@ -9,13 +9,16 @@ import dev.visionhikooo.commands.HiCMD;
 import dev.visionhikooo.commands.SetupCommand;
 import dev.visionhikooo.commands.TempChannelCMD;
 import dev.visionhikooo.commands.commandSystem.CommandManager;
-import dev.visionhikooo.filesystem.FileManager;
-import dev.visionhikooo.filesystem.OptionManager;
+import dev.visionhikooo.features.filesystem.FileManager;
+import dev.visionhikooo.features.filesystem.OptionManager;
+import dev.visionhikooo.features.filesystem.Safeable;
+import dev.visionhikooo.features.webconnection.ScholltimesManager;
 import dev.visionhikooo.listener.ButtonReactionListener;
 import dev.visionhikooo.listener.CommandListener;
 import dev.visionhikooo.listener.GuildReactionManager;
 import dev.visionhikooo.listener.TempChannelManager;
-import dev.visionhikooo.surveysAndStatistics.StatistikManager;
+import dev.visionhikooo.features.surveysAndStatistics.StatistikManager;
+import kotlin.Pair;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Member;
@@ -25,28 +28,38 @@ import net.dv8tion.jda.api.exceptions.HierarchyException;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
 import net.dv8tion.jda.api.sharding.ShardManager;
-import net.dv8tion.jda.api.utils.MemberCachePolicy;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
 
-public class SchollBot {
+public class SchollBot implements Safeable {
+
+
+    /*
+    * Manager
+    * */
 
     private static ShardManager shardMan;
-    private CommandManager commandManager;
-    private TempChannelManager tempChannelManager;
-    private GuildReactionManager guildReactionManager;
+    private final CommandManager commandManager;
+    private final TempChannelManager tempChannelManager;
+    private final GuildReactionManager guildReactionManager;
     private static FileManager fileManager;
     private static OptionManager optionManager;
+    private final StatistikManager statistikManager;
+    private final ScheduleTaskManager taskManager;
+    private final ScholltimesManager scholltimesManager;
 
-    private StatistikManager statistikManager;
+    /*
+    * OTHER
+    * */
 
+    private static boolean sendDebugToChannel = false; //Todo: in Optionmanager verschieben
 
-    private static boolean sendDebugToChannel = false;
-
+    private List<Pair<String, Activity.ActivityType>> status;
 
     public GuildReactionManager getGuildReactionManager() {
         return guildReactionManager;
@@ -56,17 +69,16 @@ public class SchollBot {
         new SchollBot();
     }
 
-    private long adminID = 1105213719555878993L;
-    private long modID = 1105255834625249420L;
-
 
     public SchollBot() {
         DefaultShardManagerBuilder builder = DefaultShardManagerBuilder.createDefault(Tokens.TEST_TOKEN);
         builder.setStatus(OnlineStatus.ONLINE);
-        builder.setActivity(Activity.watching("Noah zu."));
+        builder.setActivity(Activity.watching("Starting..."));
         builder.enableIntents(GatewayIntent.GUILD_MESSAGES);
         builder.enableIntents(GatewayIntent.MESSAGE_CONTENT);
         builder.enableIntents(GatewayIntent.GUILD_MEMBERS);
+
+        // Manager
         fileManager = new FileManager(this);
         optionManager = new OptionManager(this);
         commandManager = new CommandManager();
@@ -78,6 +90,9 @@ public class SchollBot {
         registerMessages();
         shardMan = builder.build();
         statistikManager = new StatistikManager(this);
+        status = fileManager.loadStatus();
+        taskManager = new ScheduleTaskManager(this);
+        scholltimesManager = new ScholltimesManager(this);
         shutdown();
     }
 
@@ -86,7 +101,7 @@ public class SchollBot {
     }
 
     public long getAdminID() {
-        return adminID;
+        return 1105213719555878993L;
     }
 
     public static ShardManager getShardMan() {
@@ -94,7 +109,7 @@ public class SchollBot {
     }
 
     public long getModID() {
-        return modID;
+        return 1105255834625249420L;
     }
 
     public FileManager getFileManager() {
@@ -111,6 +126,14 @@ public class SchollBot {
 
     public StatistikManager getStatistikManager() {
         return statistikManager;
+    }
+
+    public ScheduleTaskManager getTaskManager() {
+        return taskManager;
+    }
+
+    public ScholltimesManager getScholltimesManager() {
+        return scholltimesManager;
     }
 
     public void registerCommands() {
@@ -183,8 +206,7 @@ public class SchollBot {
                             shardMan.shutdown();
                             System.out.println("Bot offline.");
                         }
-                        tempChannelManager.onShutdown();
-                        optionManager.safeIDs();
+                        safe();
                         reader.close();
                     } else if(line.equalsIgnoreCase("reload")) {
                         reload();
@@ -203,6 +225,8 @@ public class SchollBot {
                         }
                     } else if (line.equalsIgnoreCase("stat")) {
                         statistikManager.safe();
+                    } else if (line.equalsIgnoreCase("scholltimes")) {
+                        scholltimesManager.check();
                     } else {
                         System.out.println("Use 'exit' to shutdown or 'reload' to reload the bot.");
                     }
@@ -236,12 +260,38 @@ public class SchollBot {
         sendConsoleMessage(message, Debug.NONE);
     }
 
-    private void reload() {
-        // Safe everything
+    @Override
+    public void safe() {
         optionManager.safeIDs();
+        tempChannelManager.onShutdown();
+    }
 
-
-        // load everything
+    @Override
+    public void load() {
         optionManager.loadIDs();
+        status = fileManager.loadStatus();
+    }
+
+    public void changeStatus() {
+        sendConsoleMessage("Wechsle den Status zufällig", Debug.NORMAL);
+
+        if (status.size() == 0) {
+            shardMan.setActivity(Activity.watching("Noah zu!"));
+            return;
+        }
+
+        Random random = new Random();
+        changeStatus(random.nextInt(status.size()));
+    }
+
+    public void changeStatus(int i) {
+        System.out.println("Ändere Status auf " + i + "!");
+        if (status== null || status.isEmpty())
+            shardMan.setActivity(Activity.watching("Noah zu!"));
+
+        if (i >= status.size())
+            i = status.size()-1;
+        Pair<String, Activity.ActivityType> pair = status.get(i);
+        shardMan.setActivity(Activity.of(pair.getSecond(), pair.getFirst()));
     }
 }

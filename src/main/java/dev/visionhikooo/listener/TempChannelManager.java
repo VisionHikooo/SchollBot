@@ -1,7 +1,7 @@
 package dev.visionhikooo.listener;
 
 import dev.visionhikooo.main.SchollBot;
-import dev.visionhikooo.surveysAndStatistics.StatistikManager;
+import dev.visionhikooo.features.surveysAndStatistics.StatistikManager;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.concrete.Category;
@@ -10,7 +10,6 @@ import net.dv8tion.jda.api.entities.channel.unions.AudioChannelUnion;
 import net.dv8tion.jda.api.entities.channel.unions.GuildMessageChannelUnion;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 
 public class TempChannelManager extends Listener {

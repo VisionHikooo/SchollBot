@@ -1,7 +1,6 @@
 package dev.visionhikooo.api;
 
-import dev.visionhikooo.filesystem.OptionManager;
-import dev.visionhikooo.main.SchollBot;
+import dev.visionhikooo.features.filesystem.OptionManager;
 
 public enum Debug {
     HIGH(3),

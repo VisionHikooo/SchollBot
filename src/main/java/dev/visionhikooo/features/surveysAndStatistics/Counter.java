@@ -1,4 +1,4 @@
-package dev.visionhikooo.surveysAndStatistics;
+package dev.visionhikooo.features.surveysAndStatistics;
 
 public class Counter {
     int val;

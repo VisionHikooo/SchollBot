@@ -3,12 +3,10 @@ package dev.visionhikooo.listener;
 import dev.visionhikooo.api.Debug;
 import dev.visionhikooo.commands.commandSystem.CommandManager;
 import dev.visionhikooo.main.SchollBot;
-import dev.visionhikooo.surveysAndStatistics.StatistikManager;
+import dev.visionhikooo.features.surveysAndStatistics.StatistikManager;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 import java.util.Arrays;
-import java.util.Locale;
 
 public class CommandListener extends Listener {
 

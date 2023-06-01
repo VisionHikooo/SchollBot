@@ -2,7 +2,7 @@ package dev.visionhikooo.commands;
 
 import dev.visionhikooo.api.SchoolClass;
 import dev.visionhikooo.commands.commandSystem.Command;
-import dev.visionhikooo.filesystem.OptionManager;
+import dev.visionhikooo.features.filesystem.OptionManager;
 import dev.visionhikooo.main.SchollBot;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
@@ -99,6 +99,8 @@ public class SetupCommand implements Command {
             bot.getOptionManager().setID(OptionManager.Options.BOT_ID, channel.getIdLong());
         } else if (args[0].equalsIgnoreCase("setDebugChannel")) {
             bot.getOptionManager().setID(OptionManager.Options.DEBUG_ID, channel.getIdLong());
+        } else if (args[0].equalsIgnoreCase("setScholltimesChannel")) {
+            bot.getOptionManager().setID(OptionManager.Options.SCHOLLTIMES_ID, channel.getIdLong());
         }
 
         return true;

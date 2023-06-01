@@ -1,4 +1,4 @@
-package dev.visionhikooo.filesystem;
+package dev.visionhikooo.features.filesystem;
 
 import dev.visionhikooo.api.Debug;
 import dev.visionhikooo.main.SchollBot;
@@ -14,8 +14,8 @@ public class OptionManager implements Safeable {
         BOT_ID,
         DEBUG_ID,
         TICKET_CAT_ID,
-        ADMIN_ID,
-        MOD_ID
+        SCHOLLTIMES_ID,
+        LAST_SCHOLLTIMES_ID
     }
 
     private SchollBot bot;
@@ -38,6 +38,7 @@ public class OptionManager implements Safeable {
     }
 
     public void safeIDs() {
+        // todo: Überarbeiten
         bot.getFileManager().writeObjectToFile("ids.scholl", specialIDs);
     }
 
@@ -46,7 +47,7 @@ public class OptionManager implements Safeable {
     }
 
     public long getID(Options option) {
-        return specialIDs.containsKey(option) ? specialIDs.get(option) : 0L;
+        return specialIDs.getOrDefault(option, 0L);
     }
 
     public boolean hasID(Options options) {

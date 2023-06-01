@@ -2,7 +2,7 @@ package dev.visionhikooo.commands;
 
 import dev.visionhikooo.api.Debug;
 import dev.visionhikooo.commands.commandSystem.Command;
-import dev.visionhikooo.filesystem.OptionManager;
+import dev.visionhikooo.features.filesystem.OptionManager;
 import dev.visionhikooo.listener.TempChannelManager;
 import dev.visionhikooo.main.SchollBot;
 import net.dv8tion.jda.api.entities.Member;

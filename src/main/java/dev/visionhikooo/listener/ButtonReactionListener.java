@@ -1,8 +1,8 @@
 package dev.visionhikooo.listener;
 
-import dev.visionhikooo.filesystem.OptionManager;
+import dev.visionhikooo.features.filesystem.OptionManager;
 import dev.visionhikooo.main.SchollBot;
-import dev.visionhikooo.surveysAndStatistics.StatistikManager;
+import dev.visionhikooo.features.surveysAndStatistics.StatistikManager;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Role;

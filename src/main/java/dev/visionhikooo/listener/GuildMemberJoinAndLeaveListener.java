@@ -1,10 +1,9 @@
 package dev.visionhikooo.listener;
 
 import dev.visionhikooo.main.SchollBot;
-import dev.visionhikooo.surveysAndStatistics.StatistikManager;
+import dev.visionhikooo.features.surveysAndStatistics.StatistikManager;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
-import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 public class GuildMemberJoinAndLeaveListener extends Listener {
 

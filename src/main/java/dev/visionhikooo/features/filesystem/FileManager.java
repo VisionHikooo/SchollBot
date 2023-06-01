@@ -1,14 +1,18 @@
-package dev.visionhikooo.filesystem;
+package dev.visionhikooo.features.filesystem;
 
+import dev.visionhikooo.api.Debug;
 import dev.visionhikooo.main.SchollBot;
-import dev.visionhikooo.surveysAndStatistics.Counter;
-import dev.visionhikooo.surveysAndStatistics.StatistikManager;
+import dev.visionhikooo.features.surveysAndStatistics.Counter;
+import dev.visionhikooo.features.surveysAndStatistics.StatistikManager;
+import kotlin.Pair;
+import net.dv8tion.jda.api.entities.Activity;
 
 import java.io.*;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 
 public class FileManager {
 
@@ -34,7 +38,7 @@ public class FileManager {
         try {
             SimpleDateFormat format = new SimpleDateFormat("E yyyy.MM.dd 'at' hh:mm:ss a zzz");
             boolean exists = new File(defaultURL + "statistics.scholl").exists();
-            FileWriter writer = new FileWriter(defaultURL + "statistics.scholl", true);
+            FileWriter writer = new FileWriter(defaultURL + File.separator + "statistics.scholl", true);
             String s = "";
             if (!exists) {
                 for (StatistikManager.StatisticCategory cat : StatistikManager.StatisticCategory.values()) {
@@ -58,6 +62,32 @@ public class FileManager {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public List<Pair<String, Activity.ActivityType>> loadStatus() {
+        SchollBot.sendConsoleMessage("Lade Statusmeldungen", Debug.LOW);
+        List<Pair<String, Activity.ActivityType>> list = new LinkedList<>();
+
+        File file = new File(defaultURL + File.separator + "status.scholl");
+        if (!file.exists())
+            return list;
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader(defaultURL + File.separator + "status.scholl"));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] arr = line.split("\\t");
+                if (arr.length == 2) {
+                    String message = arr[1];
+                    Activity.ActivityType type = Activity.ActivityType.valueOf(arr[0].toUpperCase());
+                    Pair<String, Activity.ActivityType> pair = new Pair<>(message, type);
+                    list.add(pair);
+                }
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        System.out.println("Status geladen. " + list.size() + " Einträge gefunden!");
+        return list;
     }
 
     public void writeObjectToFile(File file, Object obj) {
