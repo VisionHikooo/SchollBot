@@ -46,6 +46,10 @@ public class OptionManager implements Safeable {
         specialIDs = (HashMap<Options, Long>) bot.getFileManager().getObjectFromFile("ids.scholl");
     }
 
+    public void removeID(Options option) {
+        specialIDs.remove(option);
+    }
+
     public long getID(Options option) {
         return specialIDs.getOrDefault(option, 0L);
     }

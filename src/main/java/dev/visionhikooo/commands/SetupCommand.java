@@ -102,7 +102,6 @@ public class SetupCommand implements Command {
         } else if (args[0].equalsIgnoreCase("setScholltimesChannel")) {
             bot.getOptionManager().setID(OptionManager.Options.SCHOLLTIMES_ID, channel.getIdLong());
         }
-
         return true;
     }
 

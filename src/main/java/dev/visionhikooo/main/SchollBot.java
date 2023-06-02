@@ -4,10 +4,7 @@ import dev.visionhikooo.api.Debug;
 import dev.visionhikooo.api.Reactable;
 import dev.visionhikooo.api.ReactionMessage;
 import dev.visionhikooo.api.SchoolClass;
-import dev.visionhikooo.commands.DebugCMD;
-import dev.visionhikooo.commands.HiCMD;
-import dev.visionhikooo.commands.SetupCommand;
-import dev.visionhikooo.commands.TempChannelCMD;
+import dev.visionhikooo.commands.*;
 import dev.visionhikooo.commands.commandSystem.CommandManager;
 import dev.visionhikooo.features.filesystem.FileManager;
 import dev.visionhikooo.features.filesystem.OptionManager;
@@ -71,7 +68,7 @@ public class SchollBot implements Safeable {
 
 
     public SchollBot() {
-        DefaultShardManagerBuilder builder = DefaultShardManagerBuilder.createDefault(Tokens.TEST_TOKEN);
+        DefaultShardManagerBuilder builder = DefaultShardManagerBuilder.createDefault(Tokens.HAUPT_TOKEN);
         builder.setStatus(OnlineStatus.ONLINE);
         builder.setActivity(Activity.watching("Starting..."));
         builder.enableIntents(GatewayIntent.GUILD_MESSAGES);
@@ -100,7 +97,7 @@ public class SchollBot implements Safeable {
         return optionManager;
     }
 
-    public long getAdminID() {
+    public static long getAdminID() {
         return 1105213719555878993L;
     }
 
@@ -108,7 +105,7 @@ public class SchollBot implements Safeable {
         return shardMan;
     }
 
-    public long getModID() {
+    public static long getModID() {
         return 1105255834625249420L;
     }
 
@@ -141,6 +138,7 @@ public class SchollBot implements Safeable {
         commandManager.registerCommand("tmp", new TempChannelCMD(this));
         commandManager.registerCommand("setup", new SetupCommand(this));
         commandManager.registerCommand("debug", new DebugCMD());
+        commandManager.registerCommand("clear", new ClearCMD());
     }
 
     public void registerMessages() {
@@ -226,7 +224,11 @@ public class SchollBot implements Safeable {
                     } else if (line.equalsIgnoreCase("stat")) {
                         statistikManager.safe();
                     } else if (line.equalsIgnoreCase("scholltimes")) {
-                        scholltimesManager.check();
+                        scholltimesManager.check(true);
+                    } else if (line.equalsIgnoreCase("scholltimes rm")) {
+                        optionManager.removeID(OptionManager.Options.LAST_SCHOLLTIMES_ID);
+                    } else if (line.equalsIgnoreCase("changeStatus")) {
+                        changeStatus();
                     } else {
                         System.out.println("Use 'exit' to shutdown or 'reload' to reload the bot.");
                     }

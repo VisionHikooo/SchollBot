@@ -4,6 +4,7 @@ import dev.visionhikooo.api.Debug;
 import dev.visionhikooo.features.filesystem.OptionManager;
 import dev.visionhikooo.features.filesystem.Safeable;
 import dev.visionhikooo.main.SchollBot;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 
 import java.io.File;
@@ -59,6 +60,7 @@ public class ScholltimesManager {
 
                 //überprüfen, ob er neu ist
                 links.add(url);
+
                 // Dateien löschen
                 new File("tmp2").delete();
                 new File("tmp3").delete();
@@ -124,8 +126,14 @@ public class ScholltimesManager {
             return;
         }
 
+
+
         TextChannel textChannel = SchollBot.getShardMan().getGuilds().get(0).getTextChannelById(schollBot.getOptionManager().getID(OptionManager.Options.SCHOLLTIMES_ID));
-        textChannel.sendMessage("Dies ist der neue Scholltimesbeitrag. Ihr findet ihn unter \n\n" + url).queue();
+        textChannel.sendMessageEmbeds(new EmbedBuilder().setTitle("Neuer Scholltimes-Beitrag").setDescription("Hallo, Schollaner !\n" +
+                "\n" +
+                "Habt ihr schon den neusten Beitrag auf [Scholltimes](https://scholltimes.de/) \uD83D\uDCF0 gesehen ? Ihr könnt ihn über den folgenden Link erreichen:\n" +
+                "\n" +
+                url).build()).queue();
     }
 
 }
