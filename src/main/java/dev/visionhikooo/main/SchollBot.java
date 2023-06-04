@@ -68,7 +68,7 @@ public class SchollBot implements Safeable {
 
 
     public SchollBot() {
-        DefaultShardManagerBuilder builder = DefaultShardManagerBuilder.createDefault(Tokens.HAUPT_TOKEN);
+        DefaultShardManagerBuilder builder = DefaultShardManagerBuilder.createDefault(Tokens.TEST_TOKEN);
         builder.setStatus(OnlineStatus.ONLINE);
         builder.setActivity(Activity.watching("Starting..."));
         builder.enableIntents(GatewayIntent.GUILD_MESSAGES);
@@ -226,9 +226,12 @@ public class SchollBot implements Safeable {
                     } else if (line.equalsIgnoreCase("scholltimes")) {
                         scholltimesManager.check(true);
                     } else if (line.equalsIgnoreCase("scholltimes rm")) {
-                        optionManager.removeID(OptionManager.Options.LAST_SCHOLLTIMES_ID);
+                        getOptionManager().removeID(OptionManager.Options.LAST_SCHOLLTIMES_ID);
+                    } else if (line.equalsIgnoreCase("scholltimes false")) {
+                        scholltimesManager.check(false);
                     } else if (line.equalsIgnoreCase("changeStatus")) {
                         changeStatus();
+                    } else if (line.equalsIgnoreCase("")) {
                     } else {
                         System.out.println("Use 'exit' to shutdown or 'reload' to reload the bot.");
                     }

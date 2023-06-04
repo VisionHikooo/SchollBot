@@ -6,23 +6,25 @@ import dev.visionhikooo.features.surveysAndStatistics.Counter;
 import dev.visionhikooo.features.surveysAndStatistics.StatistikManager;
 import kotlin.Pair;
 import net.dv8tion.jda.api.entities.Activity;
+import org.yaml.snakeyaml.DumperOptions;
+import org.yaml.snakeyaml.Yaml;
 
 import java.io.*;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 public class FileManager {
 
 
     private final SchollBot bot;
+    private LinkedList<String> logs;
 
-    private String defaultURL = System.getProperty("user.dir") + File.separator + "Data";
+    private final String defaultURL = System.getProperty("user.dir") + File.separator + "Data";
 
     public FileManager(SchollBot bot) {
         this.bot = bot;
+        logs = new LinkedList<>();
         initFolderStructure();
     }
 
@@ -32,6 +34,17 @@ public class FileManager {
             folder.mkdirs();
             folder.mkdir();
         }
+    }
+
+    public void sendLogMessage(String message) {
+        if (logs!=null)
+            logs.add(message);
+    }
+
+    public void safeLogs() {
+        if (logs!=null)
+            appendMultipleLinesToFile("[" + SimpleDateFormat.DATE_FIELD + "].log", logs);
+        logs = new LinkedList<>();
     }
 
     public void safeStatistics(HashMap<StatistikManager.StatisticCategory, Counter> statistics) {
@@ -62,6 +75,42 @@ public class FileManager {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public void writeToYaml(HashMap<String, Object> data, String path) {
+        try {
+            PrintWriter writer = new PrintWriter(defaultURL + File.separator + path);
+            Yaml yaml = new Yaml();
+            yaml.dump(data, writer);
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public HashMap<String, Object> readFromYaml(String path) {
+        try {
+            InputStream stream = new FileInputStream(defaultURL + File.separator + path);
+            Yaml yaml = new Yaml();
+            return yaml.load(stream);
+        } catch (FileNotFoundException e) {
+            return new HashMap<>();
+        }
+    }
+
+    public void appendLineToFile(String path, String line) {
+        try {
+            FileWriter writer = new FileWriter(defaultURL + File.separator + path, true);
+            writer.write(line);
+            writer.flush();
+            writer.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void appendMultipleLinesToFile(String path, List<String> lines) {
+        for (String line : lines)
+            appendLineToFile(path, line + "\n");
     }
 
     public List<Pair<String, Activity.ActivityType>> loadStatus() {
