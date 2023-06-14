@@ -8,7 +8,6 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
@@ -27,20 +26,21 @@ public class ScholltimesManager {
     public void check(boolean justFirst) {
         LinkedList<ScholltimesArticle> links = new LinkedList<>();
 
-        final int lastSchollID = (int) schollBot.getOptionManager().getID(OptionManager.Options.LAST_SCHOLLTIMES_ID);
-
+        final long lastSchollID = schollBot.getOptionManager().getID(OptionManager.Options.LAST_SCHOLLTIMES_ID);
+        long newScholltimesID = lastSchollID;
         try {
             makeCurl();
             // Solange die Posts durchgehen, bis er mit der bekannten ID übereinstimmt
             int edge = justFirst ? 1 : 10;
             for (int i = 1; i <= edge; i++) {
                 int postID = getPostID(i);
+                SchollBot.sendConsoleMessage("Post-ID: " + postID + ", last-Scholl-ID: " + lastSchollID, Debug.LOW);
 
                 if (lastSchollID == postID) {
                     SchollBot.sendConsoleMessage("Bekannter Artikel wurde erreicht" , Debug.LOW);
                     new File("tmp").delete();
                     new File("tmp2").delete();
-                    return;
+                    break;
                 }
 
                 String url = getURL(postID);
@@ -52,19 +52,23 @@ public class ScholltimesManager {
                 SchollBot.sendConsoleMessage("Website: " + url, Debug.NORMAL);
                 SchollBot.sendConsoleMessage("ImageURL: " + imageURL, Debug.NORMAL);
 
-                //überprüfen, ob er neu ist
+                //Überprüfen, ob er neu ist
                 links.add(new ScholltimesArticle(title, url, imageURL));
 
                 if (i==1) {
-                    schollBot.getOptionManager().setID(OptionManager.Options.LAST_SCHOLLTIMES_ID, (long) postID);
+                    newScholltimesID = postID;
                 }
             }
 
             new File("tmp").delete();
 
+            SchollBot.sendConsoleMessage("Sende " + links.size() + " Messages!", Debug.NORMAL);
             for (int i = links.size()-1; i >= 0; i--) {
+                System.out.println(i);
                 sendMessage(links.get(i));
             }
+
+            schollBot.getOptionManager().setID(OptionManager.Options.LAST_SCHOLLTIMES_ID, newScholltimesID);
         } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);
         }
@@ -90,11 +94,11 @@ public class ScholltimesManager {
         // Lese String aus Datei
         String s = new String(new FileInputStream(tmp2).readAllBytes()).trim();
         tmp2.delete();
+        SchollBot.sendConsoleMessage("Article-ID: " + s, Debug.HIGH);
         return Integer.parseInt(s);
     }
 
     private String getTitle(int nr) throws IOException, InterruptedException {
-        //Todo: GetTitle
         File tmp2 = new File("tmp2");
         tmp2.createNewFile();
 
@@ -113,11 +117,11 @@ public class ScholltimesManager {
         // Lese String aus Datei
         String s = new String(new FileInputStream(tmp2).readAllBytes());
         tmp2.delete();
+        SchollBot.sendConsoleMessage("Title: " + s, Debug.HIGH);
         return s;
     }
 
     private String getImageURL(int nr) throws IOException, InterruptedException {
-        // TODO: GetImageURL
         File tmp2 = new File("tmp2");
         tmp2.createNewFile();
 
@@ -135,6 +139,7 @@ public class ScholltimesManager {
         // Lese String aus Datei
         String s = new String(new FileInputStream(tmp2).readAllBytes());
         tmp2.delete();
+        SchollBot.sendConsoleMessage("Image-URL: " + s, Debug.HIGH);
         return s;
     }
 
@@ -177,13 +182,18 @@ public class ScholltimesManager {
             return;
         }
 
-
         TextChannel textChannel = SchollBot.getShardMan().getGuilds().get(0).getTextChannelById(schollBot.getOptionManager().getID(OptionManager.Options.SCHOLLTIMES_ID));
+
+        if (textChannel == null) {
+            SchollBot.sendConsoleMessage("ScholltimesChannel konnte nicht gefunden werden!");
+            return;
+        }
+
+        SchollBot.sendConsoleMessage("Sende neuen Beitrag \"" + article.getTitle() +"\" in den Channel " + textChannel.getId(), Debug.NORMAL);
         textChannel.sendMessageEmbeds(new EmbedBuilder().setTitle(article.getTitle()).setDescription("Hallo, Schollaner !\n" +
                 "\n" +
                 "Habt ihr schon den neusten Beitrag auf [Scholltimes](https://scholltimes.de/) \uD83D\uDCF0 gesehen ? Ihr könnt ihn über den folgenden Link erreichen:\n" +
                 "\n" +
                 article.getUrl()).setImage(article.getImageURL()).build()).queue();
     }
-
 }

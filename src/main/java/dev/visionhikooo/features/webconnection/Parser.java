@@ -16,6 +16,8 @@ public class Parser {
         htmlChars.put(8221, "\"");
     }
 
+    // &#2412;
+
     public static String translateHtmlChars(String original) {
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(original);

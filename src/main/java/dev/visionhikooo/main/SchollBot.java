@@ -54,8 +54,6 @@ public class SchollBot implements Safeable {
     * OTHER
     * */
 
-    private static boolean sendDebugToChannel = false; //Todo: in Optionmanager verschieben
-
     private List<Pair<String, Activity.ActivityType>> status;
 
     public GuildReactionManager getGuildReactionManager() {
@@ -68,7 +66,7 @@ public class SchollBot implements Safeable {
 
 
     public SchollBot() {
-        DefaultShardManagerBuilder builder = DefaultShardManagerBuilder.createDefault(Tokens.TEST_TOKEN);
+        DefaultShardManagerBuilder builder = DefaultShardManagerBuilder.createDefault(Tokens.HAUPT_TOKEN);
         builder.setStatus(OnlineStatus.ONLINE);
         builder.setActivity(Activity.watching("Starting..."));
         builder.enableIntents(GatewayIntent.GUILD_MESSAGES);
@@ -232,6 +230,29 @@ public class SchollBot implements Safeable {
                     } else if (line.equalsIgnoreCase("changeStatus")) {
                         changeStatus();
                     } else if (line.equalsIgnoreCase("")) {
+                    } else if (line.equalsIgnoreCase("GetID")) {
+                        System.out.println(optionManager.getID(OptionManager.Options.LAST_SCHOLLTIMES_ID));
+                    } else if (line.toUpperCase().startsWith("getID".toUpperCase())) {
+                        try {
+                            System.out.println(optionManager.getID(OptionManager.Options.valueOf(line.toUpperCase().substring(6))));
+                        } catch (IllegalArgumentException e) {
+                            e.printStackTrace();
+                        }
+                    }else if (line.toUpperCase().startsWith("setID".toUpperCase())) {
+                        String[] s = line.toUpperCase().substring(6).split(" ");
+                        if (s.length == 2) {
+                            try {
+                                OptionManager.Options options = OptionManager.Options.valueOf(s[0]);
+                                long l = Long.valueOf(s[1]);
+
+                                optionManager.setID(options, l);
+                            } catch (IllegalArgumentException e) {
+                                e.printStackTrace();
+                            }
+                        } else {
+                            System.out.println("Du musst zwei Argumente angeben!");
+                        }
+
                     } else {
                         System.out.println("Use 'exit' to shutdown or 'reload' to reload the bot.");
                     }
@@ -246,7 +267,7 @@ public class SchollBot implements Safeable {
         if (debug.isAllowed()) {
             String s = "[" + (debug != Debug.NONE ? debug : "Error") + "] " + message;
             System.out.println(s);
-            if (sendDebugToChannel && optionManager.hasID(OptionManager.Options.DEBUG_ID)) {
+            if (OptionManager.isSendDebugToChannel() && optionManager.hasID(OptionManager.Options.DEBUG_ID)) {
                 shardMan.getGuilds().get(0).getTextChannelById(optionManager.getID(OptionManager.Options.DEBUG_ID)).sendMessage(s).queue();
                 System.out.println("Kleiner Test ");
             }
@@ -254,11 +275,11 @@ public class SchollBot implements Safeable {
     }
 
     public static boolean isSendDebugToChannel() {
-        return sendDebugToChannel;
+        return OptionManager.isSendDebugToChannel();
     }
 
     public static void setSendDebugToChannel(boolean sendDebugToChannel) {
-        SchollBot.sendDebugToChannel = sendDebugToChannel;
+        OptionManager.setSendDebugToChannel(sendDebugToChannel);
     }
 
     public static void sendConsoleMessage(String message) {
@@ -267,13 +288,13 @@ public class SchollBot implements Safeable {
 
     @Override
     public void safe() {
-        optionManager.safeIDs();
+        optionManager.safe();
         tempChannelManager.onShutdown();
     }
 
     @Override
     public void load() {
-        optionManager.loadIDs();
+        optionManager.load();
         status = fileManager.loadStatus();
     }
 

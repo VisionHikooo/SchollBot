@@ -20,7 +20,7 @@ public class FileManager {
     private final SchollBot bot;
     private LinkedList<String> logs;
 
-    private final String defaultURL = System.getProperty("user.dir") + File.separator + "Data";
+    public static final String defaultURL = System.getProperty("user.dir") + File.separator + "Data";
 
     public FileManager(SchollBot bot) {
         this.bot = bot;
@@ -50,9 +50,9 @@ public class FileManager {
     public void safeStatistics(HashMap<StatistikManager.StatisticCategory, Counter> statistics) {
         try {
             SimpleDateFormat format = new SimpleDateFormat("E yyyy.MM.dd 'at' hh:mm:ss a zzz");
-            boolean exists = new File(defaultURL + "statistics.scholl").exists();
+            boolean exists = new File(defaultURL + File.separator + "statistics.scholl").exists();
             FileWriter writer = new FileWriter(defaultURL + File.separator + "statistics.scholl", true);
-            String s = "";
+            String s = "[Datum]\t";
             if (!exists) {
                 for (StatistikManager.StatisticCategory cat : StatistikManager.StatisticCategory.values()) {
                     s += "[" + cat.name() + "]\t";
@@ -78,9 +78,13 @@ public class FileManager {
     }
 
     public void writeToYaml(HashMap<String, Object> data, String path) {
+        DumperOptions options = new DumperOptions();
+        options.setIndent(2);
+        options.setPrettyFlow(true);
+        options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
         try {
             PrintWriter writer = new PrintWriter(defaultURL + File.separator + path);
-            Yaml yaml = new Yaml();
+            Yaml yaml = new Yaml(options);
             yaml.dump(data, writer);
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
@@ -88,9 +92,13 @@ public class FileManager {
     }
 
     public HashMap<String, Object> readFromYaml(String path) {
+        DumperOptions options = new DumperOptions();
+        options.setIndent(2);
+        options.setPrettyFlow(true);
+        options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
         try {
             InputStream stream = new FileInputStream(defaultURL + File.separator + path);
-            Yaml yaml = new Yaml();
+            Yaml yaml = new Yaml(options);
             return yaml.load(stream);
         } catch (FileNotFoundException e) {
             return new HashMap<>();

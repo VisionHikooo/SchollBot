@@ -1,5 +1,6 @@
 package dev.visionhikooo.listener;
 
+import dev.visionhikooo.features.filesystem.FileManager;
 import dev.visionhikooo.features.filesystem.OptionManager;
 import dev.visionhikooo.main.SchollBot;
 import dev.visionhikooo.features.surveysAndStatistics.StatistikManager;
@@ -12,6 +13,9 @@ import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
 
@@ -39,6 +43,7 @@ public class ButtonReactionListener extends Listener {
                 event.getGuild().createTextChannel("Support-" + (cat.getChannels().size()), cat).complete()
                 .sendMessageEmbeds(new EmbedBuilder().setTitle("Support").setDescription("Wir werden uns schnellstmöglich um dein Problem kümmern. Sobald deine Frage geklärt wurde, klicke bitte auf den Button, um das Ticket zu schließen.")
                 .build()).addActionRow(Button.of(ButtonStyle.SUCCESS, "CLOSE-" + event.getMember().getId(), Emoji.fromUnicode("U+2705"))).queue();
+                getSchollBot().getFileManager().appendLineToFile(FileManager.defaultURL + File.separator + "TicketLog.scholl", "[" + new SimpleDateFormat("EEEEE dd MMMMM yyyy HH:mm:ss").format(new Date()) +"] " + event.getMember() + "(" + event.getMember().getId() + ")" + " has made an Ticket");
                 break;
             case "REPORT":
                 getSchollBot().getStatistikManager().addStatisticValue(StatistikManager.StatisticCategory.REPORTS_PER_DAY);
@@ -50,6 +55,7 @@ public class ButtonReactionListener extends Listener {
                         .complete().sendMessageEmbeds(new EmbedBuilder().setTitle("Report")
                         .setDescription("Bitte schreibe uns, welchen Verstoß bzw. welchen Bug du beobachtet hast. Sobald du fertig bist, klicke auf diesen Haken, um das Ticket zu schließen.").build())
                         .addActionRow(Button.of(ButtonStyle.SUCCESS, "CLOSE", Emoji.fromUnicode("U+2705"))).queue();
+                getSchollBot().getFileManager().appendLineToFile(FileManager.defaultURL + File.separator + "TicketLog.scholl", "[" + new SimpleDateFormat("EEEEE dd MMMMM yyyy HH:mm:ss").format(new Date()) +"] " + event.getMember() + "(" + event.getMember().getId() + ")" + " has made an Ticket");
                 break;
             case "CLOSE":
                 event.getChannel().delete().queue();
